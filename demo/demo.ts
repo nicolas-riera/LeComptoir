@@ -62,7 +62,7 @@ async function runDemo() {
         console.log("Fetching catalog from Java server...\n");
         const products = await fetchProducts();
 
-        if (products.length < 3) {
+        if (products.length < 6) {
             console.error("Not enough products in catalog.");
             return;
         }
@@ -85,6 +85,7 @@ async function runDemo() {
         await clearCart();
         await addToCart(products[0].ref, 1);
         await addToCart(products[2].ref, 2);
+        await addToCart(products[5].ref, 6);
         await performCheckout(3);
 
     } catch (error) {

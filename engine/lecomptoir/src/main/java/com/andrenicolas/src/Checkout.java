@@ -16,6 +16,9 @@ public class Checkout {
         }
         receipt.append("------------------------\n");
         receipt.append(String.format("TOTAL : %.2f €\n", cart.getSubTotal()));
+        if (cart.getSubTotal() > 50) {
+            receipt.append("10% discount applied.\n");
+        }
         return receipt.toString();
     }
 }

@@ -22,6 +22,9 @@ public class Cart {
         for (CartLine cartline : this.cartlines){
             this.subTotal = this.subTotal + cartline.getSubtotal();
         }
+        if (this.subTotal > 50) {
+            this.subTotal = this.subTotal * 0.9;
+        }
     }
 
     public double getSubTotal(){
