@@ -1,9 +1,10 @@
 package com.andrenicolas.src;
+import java.util.ArrayList;
 import java.util.List;
 
 // all the lines and the subtotal calculation
 public class Cart {
-    private List<CartLine>  cartlines;
+    private List<CartLine>  cartlines = new ArrayList<>();
     private double          subTotal;
 
     public void AddCartlines(List<CartLine> cartlines){

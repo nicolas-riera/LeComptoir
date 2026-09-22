@@ -31,9 +31,9 @@ public class Tools {
     }
 
     public static String extractJsonValue(String json, String key) {
-        String pattern = "\"" + key + "\"\\s*:\\s*\"?([^\",\\}\\]]+)\"?";
+        String pattern = "\"" + key + "\"\\s*:\\s*\"?([^\"\\},\\s]+)\"?";
         java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(json);
-        return matcher.find() ? matcher.group(1).trim() : "";
+        return matcher.find() ? matcher.group(1).trim() : "0";
     }
 }
 

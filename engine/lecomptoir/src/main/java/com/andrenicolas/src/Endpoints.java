@@ -2,6 +2,8 @@ package com.andrenicolas.src;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
+
 import static com.andrenicolas.src.Tools.*;
 
 import com.sun.net.httpserver.HttpServer;
@@ -27,7 +29,8 @@ public class Endpoints {
                 StringBuilder json = new StringBuilder("[");
                 for (int i = 0; i < catalog.size(); i++) {
                     Product p = catalog.get(i);
-                    json.append(String.format(
+                   json.append(String.format(
+                        Locale.US,
                         "{\"ref\":\"%s\",\"label\":\"%s\",\"price\":%.2f,\"category\":\"%s\"}",
                         p.getReference(),
                         p.getLabel(),
@@ -80,6 +83,7 @@ public class Endpoints {
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 String receipt = checkout.showReceipt(cart);
                 String jsonResponse = String.format(
+                    Locale.US,
                     "{\"receipt\":\"%s\",\"total\":%.2f}",
                     receipt.replace("\n", "\\n").replace("\"", "\\\""),
                     cart.getSubTotal()
