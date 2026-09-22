@@ -94,5 +94,18 @@ public class Endpoints {
                 exchange.sendResponseHeaders(405, -1);
             }
         });
+
+        // POST /api/cart/clear
+        server.createContext("/api/cart/clear", exchange -> {
+            addCorsHeaders(exchange);
+            if (isOptions(exchange)) return;
+
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                cart.clear();
+                sendJsonResponse(exchange, 200, "{\"message\":\"Cart cleared\"}");
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        });
     }
 }

@@ -33,4 +33,9 @@ public class Cart {
         return this.cartlines;
     }
 
+    public void clear() {
+        this.cartlines.clear();
+        this.subTotal = 0;
+    }
+
 }

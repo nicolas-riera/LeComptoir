@@ -47,6 +47,16 @@ async function performCheckout(receiptNumber: number): Promise<void> {
     console.log("\n");
 }
 
+async function clearCart(): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/cart/clear`, {
+        method: "POST"
+    });
+
+    if (!response.ok) {
+        console.error("Failed to clear cart");
+    }
+}
+
 async function runDemo() {
     try {
         console.log("Fetching catalog from Java server...\n");
@@ -59,17 +69,20 @@ async function runDemo() {
 
         // Cart 1
         console.log("--- Processing Cart 1 ---");
+        await clearCart();
         await addToCart(products[0].ref, 2);
         await addToCart(products[1].ref, 1);
         await performCheckout(1);
 
         // Cart 2
         console.log("--- Processing Cart 2 ---");
+        await clearCart();
         await addToCart(products[2].ref, 5);
         await performCheckout(2);
 
         // Cart 3
         console.log("--- Processing Cart 3 ---");
+        await clearCart();
         await addToCart(products[0].ref, 1);
         await addToCart(products[2].ref, 2);
         await performCheckout(3);
