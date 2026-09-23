@@ -46,9 +46,6 @@ public class Cart {
         for (double price : this.getFreeDrinkPrices()){
             this.subTotal = this.subTotal - price;
         }
-        if (this.subTotal > 50) {
-            this.subTotal = this.subTotal * 0.9;
-        }
     }
 
     public double getSubTotal(){
