@@ -1,8 +1,5 @@
 package com.andrenicolas.src;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.Locale;
 
@@ -13,6 +10,7 @@ public class Checkout {
     private StringBuilder receipt;
     private double VAT55;
     private double VAT20;
+    private double totalVAT;
 
     private void drinkOffer(Cart cart){
         for (double price : cart.getFreeDrinkPrices()){
@@ -30,19 +28,33 @@ public class Checkout {
         }
     }
 
-    public void savePointsFile(CartLine cartLine) throws IOException{
-        String data_to_save = Double.toString(cartline.getSubTotal() + this.loadPointsFile());
-        Files.writeString(Paths.get("data.txt"), data_to_save);
-    }
+    private void discountChecks(Cart cart) {
+        double temp10discount = -1;
+        double tempPointsdiscount = -1;
 
-    public Double loadPointsFile() throws IOException{
-        return Double.valueOf(Files.readString(Paths.get("data.txt")));
+        if (cart.getSubTotal() > 50) {
+            temp10discount = this.totalVAT * 0.9;
+        }
+
+        int nbPointsDiscounts = PointsManagement.loadPoints() / 100;
+        tempPointsdiscount = Math.max(0, this.totalVAT - (5 * nbPointsDiscounts));
+
+        if (temp10discount != -1 && (nbPointsDiscounts == 0 || temp10discount <= tempPointsdiscount)) {
+            this.receipt.append("10% discount applied.\n");
+            this.totalVAT = temp10discount;
+        } else if (nbPointsDiscounts > 0) {
+            this.totalVAT = tempPointsdiscount;
+            this.receipt.append(String.format(Locale.US, "Points (-%d €) discount applied, %d points have been used.\n", (5*nbPointsDiscounts), (100*nbPointsDiscounts)));
+            PointsManagement.removePointsByNumber(nbPointsDiscounts);
+        }
+
     }
 
     public String showReceipt(Cart cart){
         this.receipt = new StringBuilder();
         this.VAT55 = 0;
         this.VAT20 = 0;
+        this.totalVAT = 0;
 
         this.receipt.append("--------RECEIPT-------\n");
         for (CartLine cartline : cart.getCartlines()){
@@ -60,15 +72,22 @@ public class Checkout {
         drinkOffer(cart);
 
         this.receipt.append("------------------------\n");
+
         this.receipt.append(String.format(Locale.US, "TOTAL VAT 5.5%% : %.2f €\n", this.VAT55));
         this.receipt.append(String.format(Locale.US, "TOTAL VAT 20%% : %.2f €\n", this.VAT20));
 
-        double totalVAT = cart.getSubTotal() + this.VAT20 + this.VAT55;
-        if (cart.getSubTotal() > 50) {
-            this.receipt.append("10% discount applied.\n");
-            totalVAT *= 0.9;
-        }
-        this.receipt.append(String.format(Locale.US, "TOTAL Inc. VAT : %.2f €\n", totalVAT));
+        this.totalVAT = cart.getSubTotal() + this.VAT20 + this.VAT55;
+        
+        discountChecks(cart); 
+
+        this.receipt.append(String.format(Locale.US, "TOTAL Inc. VAT : %.2f €\n", this.totalVAT));
+
+        this.receipt.append("------------------------\n");
+
+        this.receipt.append("Loyalty system: \n");
+        PointsManagement.addPointsFromTotal(totalVAT);
+        this.receipt.append(String.format(Locale.US, "Points after this purchase : %d\n", PointsManagement.loadPoints()));
+
         return this.receipt.toString();
     }
 }
