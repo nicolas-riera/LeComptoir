@@ -1,5 +1,8 @@
 package com.andrenicolas.src;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.Locale;
 
@@ -25,6 +28,15 @@ public class Checkout {
         } else {
             this.VAT20 += cartline.getSubtotal() * 0.2;
         }
+    }
+
+    public void savePointsFile(CartLine cartLine) throws IOException{
+        String data_to_save = Double.toString(cartline.getSubTotal() + this.loadPointsFile());
+        Files.writeString(Paths.get("data.txt"), data_to_save);
+    }
+
+    public Double loadPointsFile() throws IOException{
+        return Double.valueOf(Files.readString(Paths.get("data.txt")));
     }
 
     public String showReceipt(Cart cart){
