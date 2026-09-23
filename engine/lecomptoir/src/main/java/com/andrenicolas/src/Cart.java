@@ -1,6 +1,9 @@
 package com.andrenicolas.src;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import com.andrenicolas.src.Enums.Category;
 
 // all the lines and the subtotal calculation
 public class Cart {
@@ -17,10 +20,31 @@ public class Cart {
         cartlines.add(cartline);
     }
 
+    public List<Double> getFreeDrinkPrices(){
+        List<Double> drinkPrices = new ArrayList<>();
+        for (CartLine cartline : this.cartlines){
+            if (cartline.getProduct().getCategory() == Category.DRINKS){
+                for (int i = 0; i < cartline.getQuantity(); i++){
+                    drinkPrices.add(cartline.getProduct().getUnitPrice());
+                }
+            }
+        }
+        Collections.sort(drinkPrices, Collections.reverseOrder());
+
+        List<Double> freeDrinks = new ArrayList<>();
+        for (int i = 2; i < drinkPrices.size(); i = i + 3){
+            freeDrinks.add(drinkPrices.get(i));
+        }
+        return freeDrinks;
+    }
+
     private void calcSubTotal(){
         this.subTotal = 0;
         for (CartLine cartline : this.cartlines){
             this.subTotal = this.subTotal + cartline.getSubtotal();
+        }
+        for (double price : this.getFreeDrinkPrices()){
+            this.subTotal = this.subTotal - price;
         }
         if (this.subTotal > 50) {
             this.subTotal = this.subTotal * 0.9;

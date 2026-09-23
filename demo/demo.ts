@@ -84,7 +84,7 @@ async function runDemo() {
         console.log("--- Processing Cart 3 ---");
         await clearCart();
         await addToCart(products[0].ref, 1);
-        await addToCart(products[2].ref, 2);
+        await addToCart(products[2].ref, 5);
         await addToCart(products[5].ref, 6);
         await performCheckout(3);
 
