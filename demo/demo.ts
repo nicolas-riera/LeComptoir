@@ -69,36 +69,44 @@ async function runDemo() {
         console.log("Fetching catalog from Java server...\n");
         const products = await fetchProducts();
 
-        if (products.length < 6) {
+        if (products.length < 18) {
             console.error("Not enough products in catalog.");
             return;
         }
 
-        console.log("--- Processing Cart 1 (Loyalty Card: 120 points) ---");
+        console.log("--- Processing Cart 1 (Loyalty Card: 20 points) ---");
         await clearCart();
         await addToCart(products[0].ref, 2);
         await addToCart(products[1].ref, 1);
-        await performCheckout({ points: 120, isVip: false });
+        await performCheckout({ points: 20, isVip: false });
 
         console.log("--- Processing Cart 2 (Loyalty Card: 250 points) ---");
         await clearCart();
         await addToCart(products[2].ref, 5);
         await performCheckout({ points: 250, isVip: false });
 
-        console.log("--- Processing Cart 3 (Loyalty Card VIP: 1500 points) ---");
+        console.log("--- Processing Cart 3 (Loyalty Card VIP: 1100 points) ---");
         await clearCart();
         await addToCart(products[0].ref, 1);
         await addToCart(products[2].ref, 5);
         await addToCart(products[5].ref, 6);
-        await performCheckout({ points: 1500, isVip: true });
+        await performCheckout({ points: 1100, isVip: true });
 
-        console.log("--- Processing Cart 4 (No Loyalty Card) ---");
+        console.log("--- Processing Cart 4 (Loyalty Card VIP: 115 points) ---");
+        await clearCart();
+        await addToCart(products[1].ref, 3);
+        await addToCart(products[2].ref, 5);
+        await addToCart(products[5].ref, 6);
+        await performCheckout({ points: 115, isVip: true });
+
+        console.log("--- Processing Cart 5 (No Loyalty Card) ---");
         await clearCart();
         await addToCart(products[1].ref, 3);
         await addToCart(products[3].ref, 1);
+        await addToCart(products[17].ref, 2);
         await performCheckout();
 
-        console.log("--- Processing Cart 5 (No Loyalty Card) ---");
+        console.log("--- Processing Cart 6 (No Loyalty Card) ---");
         await clearCart();
         await addToCart(products[0].ref, 1);
         await addToCart(products[4].ref, 2);
