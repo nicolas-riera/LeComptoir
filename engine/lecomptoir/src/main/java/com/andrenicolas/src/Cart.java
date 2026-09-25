@@ -10,13 +10,13 @@ public class Cart {
     private List<CartLine>  cartlines = new ArrayList<>();
     private double          subTotal;
 
-    public void AddCartlines(List<CartLine> cartlines){
+    public void addCartlines(List<CartLine> cartlines){
         for (CartLine cartline : cartlines){
-            this.AddCartline(cartline);
+            this.addCartline(cartline);
         }
     }
 
-    public void AddCartline(CartLine cartline){
+    public void addCartline(CartLine cartline){
         cartlines.add(cartline);
     }
 

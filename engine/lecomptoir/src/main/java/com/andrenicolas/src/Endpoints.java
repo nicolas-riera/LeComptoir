@@ -65,7 +65,7 @@ public class Endpoints {
 
                 if (target != null) {
                     CartLine line = new CartLine(target, quantity);
-                    cart.AddCartline(line);
+                    cart.addCartline(line);
                     sendJsonResponse(exchange, 200, "{\"message\":\"Product added\"}");
                 } else {
                     sendJsonResponse(exchange, 404, "{\"error\":\"Product not found\"}");
