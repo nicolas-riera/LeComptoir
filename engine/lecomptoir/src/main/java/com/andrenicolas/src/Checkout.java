@@ -18,14 +18,6 @@ public class Checkout {
     private DiscountResult discountResult;
     private LoyaltyCard updatedCard;
 
-    private void drinkOffer(Cart cart){
-        for (double price : cart.getFreeDrinkPrices()){
-            this.receipt.append(String.format(Locale.US, "Free drink : -%.2f €\n", price));
-            this.VAT55 -= price * VAT55Value;
-        }
-        this.VAT55 = Math.max(0, this.VAT55); // avoid negative VAT
-    }
-
     private void addTVA(CartLine cartline) {
         if (EnumSet.of(Category.FRESH_FOOD, Category.GROCERY, Category.FROZEN, Category.BAKERY, Category.DRINKS).contains(cartline.getProduct().getCategory())) {
             this.VAT55 += cartline.getSubtotal() * VAT55Value;
@@ -43,11 +35,16 @@ public class Checkout {
             addTVA(cartline);
         }
 
-        // drinkOffer(cart);
+        double originalTotal = cart.getSubTotal() + this.VAT20 + this.VAT55;
+        this.discountResult = discounts.applyBestDiscount(cart, originalTotal, card);
 
-        this.totalVAT = cart.getSubTotal() + this.VAT20 + this.VAT55;
-        this.discountResult = discounts.applyBestDiscount(cart, this.totalVAT, card);
-        this.totalVAT = discountResult.totalAfterDiscount();
+        if (originalTotal > 0) {
+            double ratio = this.discountResult.totalAfterDiscount() / originalTotal;
+            this.VAT55 *= ratio;
+            this.VAT20 *= ratio;
+        }
+
+        this.totalVAT = this.discountResult.totalAfterDiscount();
         this.updatedCard = this.discountResult.updatedCard().addPointsFromTotal(this.totalVAT);
     }
     public String showReceipt(Cart cart, LoyaltyCard card) {
