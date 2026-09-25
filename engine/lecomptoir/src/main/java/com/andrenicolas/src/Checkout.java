@@ -8,8 +8,8 @@ import com.andrenicolas.src.Enums.Category;
 // entry point that produces the receipt
 public class Checkout {
     private StringBuilder receipt;
-    private double VAT55Value = 0.055;
-    private double VAT20Value = 0.2;
+    private final double VAT55Value = 0.055;
+    private final double VAT20Value = 0.2;
     private double VAT55;
     private double VAT20;
     private double totalVAT;
