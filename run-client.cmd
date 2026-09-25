@@ -1,2 +1,5 @@
 @echo off
-npx tsx demo/demo.ts
+cd /d "%~dp0demo"
+call npm install
+call npx tsx demo.ts
+pause
