@@ -5,6 +5,11 @@ interface Product {
     category: string;
 }
 
+interface LoyaltyCardData {
+    points: number;
+    isVip: boolean;
+}
+
 interface CheckoutResponse {
     receipt: string;
     total: number;
@@ -32,9 +37,11 @@ async function addToCart(ref: string, quantity: number): Promise<void> {
     }
 }
 
-async function performCheckout(receiptNumber: number): Promise<void> {
+async function performCheckout(card?: LoyaltyCardData): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/checkout`, {
-        method: "POST"
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: card ? JSON.stringify(card) : JSON.stringify({})
     });
 
     if (!response.ok) {
@@ -67,26 +74,35 @@ async function runDemo() {
             return;
         }
 
-        // Cart 1
-        console.log("--- Processing Cart 1 ---");
+        console.log("--- Processing Cart 1 (Loyalty Card: 120 points) ---");
         await clearCart();
         await addToCart(products[0].ref, 2);
         await addToCart(products[1].ref, 1);
-        await performCheckout(1);
+        await performCheckout({ points: 120, isVip: false });
 
-        // Cart 2
-        console.log("--- Processing Cart 2 ---");
+        console.log("--- Processing Cart 2 (Loyalty Card: 250 points) ---");
         await clearCart();
         await addToCart(products[2].ref, 5);
-        await performCheckout(2);
+        await performCheckout({ points: 250, isVip: false });
 
-        // Cart 3
-        console.log("--- Processing Cart 3 ---");
+        console.log("--- Processing Cart 3 (Loyalty Card VIP: 1500 points) ---");
         await clearCart();
         await addToCart(products[0].ref, 1);
         await addToCart(products[2].ref, 5);
         await addToCart(products[5].ref, 6);
-        await performCheckout(3);
+        await performCheckout({ points: 1500, isVip: true });
+
+        console.log("--- Processing Cart 4 (No Loyalty Card) ---");
+        await clearCart();
+        await addToCart(products[1].ref, 3);
+        await addToCart(products[3].ref, 1);
+        await performCheckout();
+
+        console.log("--- Processing Cart 5 (No Loyalty Card) ---");
+        await clearCart();
+        await addToCart(products[0].ref, 1);
+        await addToCart(products[4].ref, 2);
+        await performCheckout();
 
     } catch (error) {
         console.error("Demo execution error:", error);

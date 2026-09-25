@@ -1,5 +1,6 @@
 package com.andrenicolas.src;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
@@ -81,7 +82,15 @@ public class Endpoints {
             if (isOptions(exchange)) return;
 
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-                String receipt = checkout.showReceipt(cart);
+                InputStream inputStream = exchange.getRequestBody();
+                String body = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+
+                int points = parseJsonInt(body, "points", 0);
+                boolean isVip = parseJsonBoolean(body, "isVip", false);
+
+                LoyaltyCard loyaltyCard = new LoyaltyCard(points, isVip);
+                String receipt = checkout.showReceipt(cart, loyaltyCard);
+
                 String jsonResponse = String.format(
                     Locale.US,
                     "{\"receipt\":\"%s\",\"total\":%.2f}",
