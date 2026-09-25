@@ -8,6 +8,8 @@ import com.andrenicolas.src.Enums.Category;
 // entry point that produces the receipt
 public class Checkout {
     private StringBuilder receipt;
+    private double VAT55Value = 0.055;
+    private double VAT20Value = 0.2;
     private double VAT55;
     private double VAT20;
     private double totalVAT;
@@ -15,16 +17,16 @@ public class Checkout {
     private void drinkOffer(Cart cart){
         for (double price : cart.getFreeDrinkPrices()){
             this.receipt.append(String.format(Locale.US, "Free drink : -%.2f €\n", price));
-            this.VAT55 -= price * 0.055;
+            this.VAT55 -= price * VAT55Value;
         }
         this.VAT55 = Math.max(0, this.VAT55); // avoid negative VAT
     }
 
     private void addTVA(CartLine cartline) {
         if (EnumSet.of(Category.FRESH_FOOD, Category.GROCERY, Category.FROZEN, Category.BAKERY, Category.DRINKS).contains(cartline.getProduct().getCategory())) {
-            this.VAT55 += cartline.getSubtotal() * 0.055;
+            this.VAT55 += cartline.getSubtotal() * VAT55Value;
         } else {
-            this.VAT20 += cartline.getSubtotal() * 0.2;
+            this.VAT20 += cartline.getSubtotal() * VAT20Value;
         }
     }
 
