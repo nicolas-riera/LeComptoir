@@ -3,58 +3,52 @@ package com.andrenicolas.src;
 import java.util.EnumSet;
 import java.util.Locale;
 
+import com.andrenicolas.src.DiscountSystem.DiscountResult;
+import com.andrenicolas.src.DiscountSystem.Discounts;
 import com.andrenicolas.src.Enums.Category;
 
-// entry point that produces the receipt
 public class Checkout {
     private StringBuilder receipt;
+    private final Discounts discounts = new Discounts();
+    private final double VAT55Value = 0.055;
+    private final double VAT20Value = 0.2;
     private double VAT55;
     private double VAT20;
     private double totalVAT;
-
-    private void drinkOffer(Cart cart){
-        for (double price : cart.getFreeDrinkPrices()){
-            this.receipt.append(String.format(Locale.US, "Free drink : -%.2f €\n", price));
-            this.VAT55 -= price * 0.055;
-        }
-        this.VAT55 = Math.max(0, this.VAT55); // avoid negative VAT
-    }
+    private DiscountResult discountResult;
+    private LoyaltyCard updatedCard;
 
     private void addTVA(CartLine cartline) {
         if (EnumSet.of(Category.FRESH_FOOD, Category.GROCERY, Category.FROZEN, Category.BAKERY, Category.DRINKS).contains(cartline.getProduct().getCategory())) {
-            this.VAT55 += cartline.getSubtotal() * 0.055;
+            this.VAT55 += cartline.getSubtotal() * VAT55Value;
         } else {
-            this.VAT20 += cartline.getSubtotal() * 0.2;
+            this.VAT20 += cartline.getSubtotal() * VAT20Value;
         }
     }
 
-    private void discountChecks(Cart cart) {
-        double temp10discount = -1;
-        double tempPointsdiscount = -1;
-
-        if (cart.getSubTotal() > 50) {
-            temp10discount = this.totalVAT * 0.9;
-        }
-
-        int nbPointsDiscounts = PointsManagement.loadPoints() / 100;
-        tempPointsdiscount = Math.max(0, this.totalVAT - (5 * nbPointsDiscounts));
-
-        if (temp10discount != -1 && (nbPointsDiscounts == 0 || temp10discount <= tempPointsdiscount)) {
-            this.receipt.append("10% discount applied.\n");
-            this.totalVAT = temp10discount;
-        } else if (nbPointsDiscounts > 0) {
-            this.totalVAT = tempPointsdiscount;
-            this.receipt.append(String.format(Locale.US, "Points (-%d €) discount applied, %d points have been used.\n", (5*nbPointsDiscounts), (100*nbPointsDiscounts)));
-            PointsManagement.removePointsByNumber(nbPointsDiscounts);
-        }
-
-    }
-
-    public String showReceipt(Cart cart){
-        this.receipt = new StringBuilder();
+    public void finalPriceCalc(Cart cart, LoyaltyCard card){
         this.VAT55 = 0;
         this.VAT20 = 0;
         this.totalVAT = 0;
+
+        for (CartLine cartline : cart.getCartlines()){
+            addTVA(cartline);
+        }
+
+        double originalTotal = cart.getSubTotal() + this.VAT20 + this.VAT55;
+        this.discountResult = discounts.applyBestDiscount(cart, originalTotal, card);
+
+        if (originalTotal > 0) {
+            double ratio = this.discountResult.totalAfterDiscount() / originalTotal;
+            this.VAT55 *= ratio;
+            this.VAT20 *= ratio;
+        }
+
+        this.totalVAT = this.discountResult.totalAfterDiscount();
+        this.updatedCard = this.discountResult.updatedCard().addPointsFromTotal(this.totalVAT);
+    }
+    public String showReceipt(Cart cart, LoyaltyCard card) {
+        this.receipt = new StringBuilder();
 
         this.receipt.append("--------RECEIPT-------\n");
         for (CartLine cartline : cart.getCartlines()){
@@ -64,30 +58,30 @@ public class Checkout {
             cartline.getProduct().getCategory(),
             cartline.getQuantity(),
             cartline.getSubtotal()));
-
-            addTVA(cartline);
-
         }
 
-        drinkOffer(cart);
+        // drinkOffer(cart);
 
         this.receipt.append("------------------------\n");
 
         this.receipt.append(String.format(Locale.US, "TOTAL VAT 5.5%% : %.2f €\n", this.VAT55));
+
         this.receipt.append(String.format(Locale.US, "TOTAL VAT 20%% : %.2f €\n", this.VAT20));
 
-        this.totalVAT = cart.getSubTotal() + this.VAT20 + this.VAT55;
-        
-        discountChecks(cart); 
+        this.receipt.append(this.discountResult.description());
 
         this.receipt.append(String.format(Locale.US, "TOTAL Inc. VAT : %.2f €\n", this.totalVAT));
 
         this.receipt.append("------------------------\n");
 
         this.receipt.append("Loyalty system: \n");
-        PointsManagement.addPointsFromTotal(totalVAT);
-        this.receipt.append(String.format(Locale.US, "Points after this purchase : %d\n", PointsManagement.loadPoints()));
+
+        this.receipt.append(String.format(Locale.US, "Points after this purchase : %d\n", this.updatedCard.getPoints()));
 
         return this.receipt.toString();
+    }
+
+    public String showReceipt(Cart cart) { // If the client doesn't have any loyalty card
+        return showReceipt(cart, new LoyaltyCard());
     }
 }

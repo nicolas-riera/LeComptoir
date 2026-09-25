@@ -35,5 +35,28 @@ public class Tools {
         java.util.regex.Matcher matcher = java.util.regex.Pattern.compile(pattern).matcher(json);
         return matcher.find() ? matcher.group(1).trim() : "0";
     }
-}
 
+    public static int parseJsonInt(String json, String key, int defaultValue) {
+        if (json == null || json.isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            String value = extractJsonValue(json, key);
+            return Integer.parseInt(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public static boolean parseJsonBoolean(String json, String key, boolean defaultValue) {
+        if (json == null || json.isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            String value = extractJsonValue(json, key);
+            return Boolean.parseBoolean(value);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+}
