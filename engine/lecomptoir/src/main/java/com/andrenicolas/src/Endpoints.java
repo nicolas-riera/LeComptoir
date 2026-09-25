@@ -89,6 +89,7 @@ public class Endpoints {
                 boolean isVip = parseJsonBoolean(body, "isVip", false);
 
                 LoyaltyCard loyaltyCard = new LoyaltyCard(points, isVip);
+                checkout.finalPriceCalc(cart, loyaltyCard);
                 String receipt = checkout.showReceipt(cart, loyaltyCard);
 
                 String jsonResponse = String.format(
